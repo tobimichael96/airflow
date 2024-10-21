@@ -762,6 +762,7 @@ class BaseOperator(AbstractOperator, metaclass=BaseOperatorMeta):
         # self.retries = parse_retries(retries)
         self.retries = retries
         self.queue = queue
+        # TODO: Task-SDK: pull this default name from Pool constant?
         self.pool = "default" if pool is None else pool
         self.pool_slots = pool_slots
         if self.pool_slots < 1:

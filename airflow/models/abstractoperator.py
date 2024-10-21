@@ -20,7 +20,7 @@ from __future__ import annotations
 import datetime
 import inspect
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Callable, Collection, Iterable, Iterator, Sequence
+from typing import TYPE_CHECKING, Any, Callable, Iterable, Iterator, Sequence
 
 import methodtools
 from sqlalchemy import select
@@ -28,7 +28,6 @@ from sqlalchemy import select
 from airflow.configuration import conf
 from airflow.exceptions import AirflowException
 from airflow.models.expandinput import NotFullyPopulated
-from airflow.models.taskmixin import DependencyMixin
 from airflow.sdk.definitions.abstractoperator import AbstractOperator as TaskSDKAbstractOperator
 from airflow.template.templater import Templater
 from airflow.utils.context import Context
@@ -39,7 +38,6 @@ from airflow.utils.sqlalchemy import with_row_locks
 from airflow.utils.state import State, TaskInstanceState
 from airflow.utils.task_group import MappedTaskGroup
 from airflow.utils.trigger_rule import TriggerRule
-from airflow.sdk.types import NOTSET, ArgNotSet
 from airflow.utils.weight_rule import WeightRule
 
 TaskStateChangeCallback = Callable[[Context], None]
@@ -53,9 +51,8 @@ if TYPE_CHECKING:
     from airflow.models.baseoperatorlink import BaseOperatorLink
     from airflow.models.dag import DAG as SchedulerDAG
     from airflow.models.mappedoperator import MappedOperator
-    from airflow.models.operator import Operator
     from airflow.models.taskinstance import TaskInstance
-    from airflow.sdk import BaseOperator, DAG
+    from airflow.sdk import DAG, BaseOperator
     from airflow.sdk.defintions.node import DAGNode
     from airflow.task.priority_strategy import PriorityWeightStrategy
     from airflow.triggers.base import StartTriggerArgs

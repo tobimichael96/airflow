@@ -192,160 +192,131 @@ _PARTIAL_DEFAULTS: dict[str, Any] = {
 
 
 # This is what handles the actual mapping.
-def partial(
-    operator_class: type[BaseOperator],
-    *,
-    task_id: str,
-    dag: DAG | None = None,
-    task_group: TaskGroup | None = None,
-    start_date: datetime | ArgNotSet = NOTSET,
-    end_date: datetime | ArgNotSet = NOTSET,
-    owner: str | ArgNotSet = NOTSET,
-    email: None | str | Iterable[str] | ArgNotSet = NOTSET,
-    params: collections.abc.MutableMapping | None = None,
-    resources: dict[str, Any] | None | ArgNotSet = NOTSET,
-    trigger_rule: str | ArgNotSet = NOTSET,
-    depends_on_past: bool | ArgNotSet = NOTSET,
-    ignore_first_depends_on_past: bool | ArgNotSet = NOTSET,
-    wait_for_past_depends_before_skipping: bool | ArgNotSet = NOTSET,
-    wait_for_downstream: bool | ArgNotSet = NOTSET,
-    retries: int | None | ArgNotSet = NOTSET,
-    queue: str | ArgNotSet = NOTSET,
-    pool: str | ArgNotSet = NOTSET,
-    pool_slots: int | ArgNotSet = NOTSET,
-    execution_timeout: timedelta | None | ArgNotSet = NOTSET,
-    max_retry_delay: None | timedelta | float | ArgNotSet = NOTSET,
-    retry_delay: timedelta | float | ArgNotSet = NOTSET,
-    retry_exponential_backoff: bool | ArgNotSet = NOTSET,
-    priority_weight: int | ArgNotSet = NOTSET,
-    weight_rule: str | PriorityWeightStrategy | ArgNotSet = NOTSET,
-    sla: timedelta | None | ArgNotSet = NOTSET,
-    map_index_template: str | None | ArgNotSet = NOTSET,
-    max_active_tis_per_dag: int | None | ArgNotSet = NOTSET,
-    max_active_tis_per_dagrun: int | None | ArgNotSet = NOTSET,
-    on_execute_callback: None | TaskStateChangeCallback | list[TaskStateChangeCallback] | ArgNotSet = NOTSET,
-    on_failure_callback: None | TaskStateChangeCallback | list[TaskStateChangeCallback] | ArgNotSet = NOTSET,
-    on_success_callback: None | TaskStateChangeCallback | list[TaskStateChangeCallback] | ArgNotSet = NOTSET,
-    on_retry_callback: None | TaskStateChangeCallback | list[TaskStateChangeCallback] | ArgNotSet = NOTSET,
-    on_skipped_callback: None | TaskStateChangeCallback | list[TaskStateChangeCallback] | ArgNotSet = NOTSET,
-    run_as_user: str | None | ArgNotSet = NOTSET,
-    executor: str | None | ArgNotSet = NOTSET,
-    executor_config: dict | None | ArgNotSet = NOTSET,
-    inlets: Any | None | ArgNotSet = NOTSET,
-    outlets: Any | None | ArgNotSet = NOTSET,
-    doc: str | None | ArgNotSet = NOTSET,
-    doc_md: str | None | ArgNotSet = NOTSET,
-    doc_json: str | None | ArgNotSet = NOTSET,
-    doc_yaml: str | None | ArgNotSet = NOTSET,
-    doc_rst: str | None | ArgNotSet = NOTSET,
-    task_display_name: str | None | ArgNotSet = NOTSET,
-    logger_name: str | None | ArgNotSet = NOTSET,
-    allow_nested_operators: bool = True,
-    **kwargs,
-) -> OperatorPartial:
-    from airflow.sdk.definitions.contextmanager import DagContext, TaskGroupContext
 
-    validate_mapping_kwargs(operator_class, "partial", kwargs)
-
-    dag = dag or DagContext.get_current()
-    if dag:
-        task_group = task_group or TaskGroupContext.get_current(dag)
-    if task_group:
-        task_id = task_group.child_id(task_id)
-
-    # Merge DAG and task group level defaults into user-supplied values.
-    dag_default_args, partial_params = get_merged_defaults(
-        dag=dag,
-        task_group=task_group,
-        task_params=params,
-        task_default_args=kwargs.pop("default_args", None),
-    )
-
-    # Create partial_kwargs from args and kwargs
-    partial_kwargs: dict[str, Any] = {
+if TYPE_CHECKING:
+    def partial(
+        operator_class: type[BaseOperator],
+        *,
+        task_id: str,
+        dag: DAG | None = None,
+        task_group: TaskGroup | None = None,
+        start_date: datetime | ArgNotSet = NOTSET,
+        end_date: datetime | ArgNotSet = NOTSET,
+        owner: str | ArgNotSet = NOTSET,
+        email: None | str | Iterable[str] | ArgNotSet = NOTSET,
+        params: collections.abc.MutableMapping | None = None,
+        resources: dict[str, Any] | None | ArgNotSet = NOTSET,
+        trigger_rule: str | ArgNotSet = NOTSET,
+        depends_on_past: bool | ArgNotSet = NOTSET,
+        ignore_first_depends_on_past: bool | ArgNotSet = NOTSET,
+        wait_for_past_depends_before_skipping: bool | ArgNotSet = NOTSET,
+        wait_for_downstream: bool | ArgNotSet = NOTSET,
+        retries: int | None | ArgNotSet = NOTSET,
+        queue: str | ArgNotSet = NOTSET,
+        pool: str | ArgNotSet = NOTSET,
+        pool_slots: int | ArgNotSet = NOTSET,
+        execution_timeout: timedelta | None | ArgNotSet = NOTSET,
+        max_retry_delay: None | timedelta | float | ArgNotSet = NOTSET,
+        retry_delay: timedelta | float | ArgNotSet = NOTSET,
+        retry_exponential_backoff: bool | ArgNotSet = NOTSET,
+        priority_weight: int | ArgNotSet = NOTSET,
+        weight_rule: str | PriorityWeightStrategy | ArgNotSet = NOTSET,
+        sla: timedelta | None | ArgNotSet = NOTSET,
+        map_index_template: str | None | ArgNotSet = NOTSET,
+        max_active_tis_per_dag: int | None | ArgNotSet = NOTSET,
+        max_active_tis_per_dagrun: int | None | ArgNotSet = NOTSET,
+        on_execute_callback: None | TaskStateChangeCallback | list[TaskStateChangeCallback] | ArgNotSet = NOTSET,
+        on_failure_callback: None | TaskStateChangeCallback | list[TaskStateChangeCallback] | ArgNotSet = NOTSET,
+        on_success_callback: None | TaskStateChangeCallback | list[TaskStateChangeCallback] | ArgNotSet = NOTSET,
+        on_retry_callback: None | TaskStateChangeCallback | list[TaskStateChangeCallback] | ArgNotSet = NOTSET,
+        on_skipped_callback: None | TaskStateChangeCallback | list[TaskStateChangeCallback] | ArgNotSet = NOTSET,
+        run_as_user: str | None | ArgNotSet = NOTSET,
+        executor: str | None | ArgNotSet = NOTSET,
+        executor_config: dict | None | ArgNotSet = NOTSET,
+        inlets: Any | None | ArgNotSet = NOTSET,
+        outlets: Any | None | ArgNotSet = NOTSET,
+        doc: str | None | ArgNotSet = NOTSET,
+        doc_md: str | None | ArgNotSet = NOTSET,
+        doc_json: str | None | ArgNotSet = NOTSET,
+        doc_yaml: str | None | ArgNotSet = NOTSET,
+        doc_rst: str | None | ArgNotSet = NOTSET,
+        task_display_name: str | None | ArgNotSet = NOTSET,
+        logger_name: str | None | ArgNotSet = NOTSET,
+        allow_nested_operators: bool = True,
         **kwargs,
-        "dag": dag,
-        "task_group": task_group,
-        "task_id": task_id,
-        "map_index_template": map_index_template,
-        "start_date": start_date,
-        "end_date": end_date,
-        "owner": owner,
-        "email": email,
-        "trigger_rule": trigger_rule,
-        "depends_on_past": depends_on_past,
-        "ignore_first_depends_on_past": ignore_first_depends_on_past,
-        "wait_for_past_depends_before_skipping": wait_for_past_depends_before_skipping,
-        "wait_for_downstream": wait_for_downstream,
-        "retries": retries,
-        "queue": queue,
-        "pool": pool,
-        "pool_slots": pool_slots,
-        "execution_timeout": execution_timeout,
-        "max_retry_delay": max_retry_delay,
-        "retry_delay": retry_delay,
-        "retry_exponential_backoff": retry_exponential_backoff,
-        "priority_weight": priority_weight,
-        "weight_rule": weight_rule,
-        "sla": sla,
-        "max_active_tis_per_dag": max_active_tis_per_dag,
-        "max_active_tis_per_dagrun": max_active_tis_per_dagrun,
-        "on_execute_callback": on_execute_callback,
-        "on_failure_callback": on_failure_callback,
-        "on_retry_callback": on_retry_callback,
-        "on_success_callback": on_success_callback,
-        "on_skipped_callback": on_skipped_callback,
-        "run_as_user": run_as_user,
-        "executor": executor,
-        "executor_config": executor_config,
-        "inlets": inlets,
-        "outlets": outlets,
-        "resources": resources,
-        "doc": doc,
-        "doc_json": doc_json,
-        "doc_md": doc_md,
-        "doc_rst": doc_rst,
-        "doc_yaml": doc_yaml,
-        "task_display_name": task_display_name,
-        "logger_name": logger_name,
-        "allow_nested_operators": allow_nested_operators,
-    }
+    ) -> OperatorPartial: ...
+else:
+    def partial(
+        operator_class: type[BaseOperator],
+        *,
+        task_id: str,
+        dag: DAG | None = None,
+        task_group: TaskGroup | None = None,
+        params: collections.abc.MutableMapping | None = None,
+        **kwargs,
+    ):
+        from airflow.sdk.definitions.contextmanager import DagContext, TaskGroupContext
 
-    # Inject DAG-level default args into args provided to this function.
-    partial_kwargs.update((k, v) for k, v in dag_default_args.items() if partial_kwargs.get(k) is NOTSET)
+        validate_mapping_kwargs(operator_class, "partial", kwargs)
 
-    # Fill fields not provided by the user with default values.
-    partial_kwargs = {k: _PARTIAL_DEFAULTS.get(k) if v is NOTSET else v for k, v in partial_kwargs.items()}
-
-    # Post-process arguments. Should be kept in sync with _TaskDecorator.expand().
-    if "task_concurrency" in kwargs:  # Reject deprecated option.
-        raise TypeError("unexpected argument: task_concurrency")
-    if partial_kwargs["wait_for_downstream"]:
-        partial_kwargs["depends_on_past"] = True
-    partial_kwargs["start_date"] = timezone.convert_to_utc(partial_kwargs["start_date"])
-    partial_kwargs["end_date"] = timezone.convert_to_utc(partial_kwargs["end_date"])
-    if partial_kwargs["pool"] is None:
-        partial_kwargs["pool"] = Pool.DEFAULT_POOL_NAME
-    if partial_kwargs["pool_slots"] < 1:
-        dag_str = ""
+        dag = dag or DagContext.get_current()
         if dag:
-            dag_str = f" in dag {dag.dag_id}"
-        raise ValueError(f"pool slots for {task_id}{dag_str} cannot be less than 1")
-    partial_kwargs["retries"] = parse_retries(partial_kwargs["retries"])
-    partial_kwargs["retry_delay"] = coerce_timedelta(partial_kwargs["retry_delay"], key="retry_delay")
-    if partial_kwargs["max_retry_delay"] is not None:
-        partial_kwargs["max_retry_delay"] = coerce_timedelta(
-            partial_kwargs["max_retry_delay"],
-            key="max_retry_delay",
-        )
-    partial_kwargs["executor_config"] = partial_kwargs["executor_config"] or {}
-    partial_kwargs["resources"] = coerce_resources(partial_kwargs["resources"])
+            task_group = task_group or TaskGroupContext.get_current(dag)
+        if task_group:
+            task_id = task_group.child_id(task_id)
 
-    return OperatorPartial(
-        operator_class=operator_class,
-        kwargs=partial_kwargs,
-        params=partial_params,
-    )
+        # Merge DAG and task group level defaults into user-supplied values.
+        dag_default_args, partial_params = get_merged_defaults(
+            dag=dag,
+            task_group=task_group,
+            task_params=params,
+            task_default_args=kwargs.pop("default_args", None),
+        )
+
+        # Create partial_kwargs from args and kwargs
+        partial_kwargs: dict[str, Any] = {
+            "task_id": task_id,
+            "dag": dag,
+            "task_group": task_group,
+            **kwargs,
+        }
+
+        # Inject DAG-level default args into args provided to this function.
+        partial_kwargs.update((k, v) for k, v in dag_default_args.items() if partial_kwargs.get(k) is NOTSET)
+
+        # Fill fields not provided by the user with default values.
+        for k, v in _PARTIAL_DEFAULTS.items():
+            partial_kwargs.setdefault(k, v)
+
+        # Post-process arguments. Should be kept in sync with _TaskDecorator.expand().
+        if "task_concurrency" in kwargs:  # Reject deprecated option.
+            raise TypeError("unexpected argument: task_concurrency")
+        if wait := partial_kwargs.get("wait_for_downstream", False):
+            partial_kwargs["depends_on_past"] = wait
+        if start_date := partial_kwargs.get("start_date", None):
+            partial_kwargs["start_date"] = timezone.convert_to_utc(start_date)
+        if end_date := partial_kwargs.get("end_date", None):
+            partial_kwargs["end_date"] = timezone.convert_to_utc(end_date)
+        if partial_kwargs["pool_slots"] < 1:
+            dag_str = ""
+            if dag:
+                dag_str = f" in dag {dag.dag_id}"
+            raise ValueError(f"pool slots for {task_id}{dag_str} cannot be less than 1")
+        if retries := partial_kwargs.get('retries'):
+            partial_kwargs["retries"] = parse_retries(retries)
+        partial_kwargs["retry_delay"] = coerce_timedelta(partial_kwargs["retry_delay"], key="retry_delay")
+        if partial_kwargs.get("max_retry_delay", None) is not None:
+            partial_kwargs["max_retry_delay"] = coerce_timedelta(
+                partial_kwargs["max_retry_delay"],
+                key="max_retry_delay",
+            )
+        partial_kwargs.setdefault("executor_config", {})
+
+        return OperatorPartial(
+            operator_class=operator_class,
+            kwargs=partial_kwargs,
+            params=partial_params,
+        )
 
 
 class ExecutorSafeguard:
